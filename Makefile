@@ -23,3 +23,15 @@ docker:
 
 dist: clean docker
 	BUILDTYPE=$(BUILDTYPE) BUILDVERSION=$(BUILDVERSION) $(MAKE) -C docker dist
+
+run:
+	BUILDTYPE=$(BUILDTYPE) BUILDVERSION=$(BUILDVERSION) $(MAKE) -C docker run
+
+run-bash:
+	BUILDTYPE=$(BUILDTYPE) BUILDVERSION=$(BUILDVERSION) $(MAKE) -C docker run-bash
+
+exec-bash:
+	BUILDTYPE=$(BUILDTYPE) BUILDVERSION=$(BUILDVERSION) $(MAKE) -C docker exec-bash
+
+stop:
+	BUILDTYPE=$(BUILDTYPE) BUILDVERSION=$(BUILDVERSION) $(MAKE) -C docker stop
