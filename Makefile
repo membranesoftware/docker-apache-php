@@ -1,3 +1,5 @@
+BUNDLETARGETS=www.tar.gz
+
 dist: BUILDTYPE=dist
 dist: BUILDNUMBER=  $(shell git log --all --oneline | wc -l | sed -e "s/[^0-9]//g")
 dist: BUILDHASH=  $(shell git show-ref -s heads/master | cut -b -8)
@@ -17,9 +19,12 @@ all: docker
 
 clean:
 	BUILDTYPE=$(BUILDTYPE) BUILDVERSION=$(BUILDVERSION) $(MAKE) -C docker clean
+	rm -f $(BUNDLETARGETS)
 
-docker:
+docker: $(BUNDLETARGETS)
+	cp -v $(BUNDLETARGETS) docker
 	BUILDTYPE=$(BUILDTYPE) BUILDVERSION=$(BUILDVERSION) $(MAKE) -C docker all
+	rm -f $(BUNDLETARGETS)
 
 dist: clean docker
 	BUILDTYPE=$(BUILDTYPE) BUILDVERSION=$(BUILDVERSION) $(MAKE) -C docker dist
@@ -35,3 +40,6 @@ exec-bash:
 
 stop:
 	BUILDTYPE=$(BUILDTYPE) BUILDVERSION=$(BUILDVERSION) $(MAKE) -C docker stop
+
+www.tar.gz:
+	tar czf $@ www
