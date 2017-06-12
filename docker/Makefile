@@ -1,9 +1,22 @@
 DOCKERNAME=docker-apache-php
 LISTENPORT=8080
 
+ifndef BUILDTYPE
+BUILDTYPE=normal
+endif
+
+ifndef BUILDVERSION
+BUILDVERSION=latest
+endif
+
 DOCKER_NETWORK_OPTS=-p $(LISTENPORT):80
 
-.PHONY: docker
+DOCKER_VOLUME_OPTS=
+ifeq ($(BUILDTYPE), dev)
+DOCKER_VOLUME_OPTS=-v $(BASEPATH)/docker/www:/var/www/html
+endif
+
+.PHONY: docker volumes
 
 all: docker
 
@@ -15,13 +28,16 @@ dist: docker
 	docker save -o $(DOCKERNAME).docker $(DOCKERNAME):$(BUILDVERSION)
 
 clean:
-	rm -f *.docker
+	rm -f *.docker *.tar.gz
 
-run:
-	docker run -d $(DOCKER_NETWORK_OPTS) --name=$(DOCKERNAME)_$(BUILDVERSION) $(DOCKERNAME):$(BUILDVERSION);
+volumes:
+	if [ "$(BUILDTYPE)" = "dev" -a ! -d www ]; then mkdir www && chmod 755 www; fi;
 
-run-bash:
-	docker run -it $(DOCKER_NETWORK_OPTS) --name=$(DOCKERNAME)_$(BUILDVERSION) $(DOCKERNAME):$(BUILDVERSION) bash
+run: volumes
+	docker run -d $(DOCKER_NETWORK_OPTS) $(DOCKER_VOLUME_OPTS) --name=$(DOCKERNAME)_$(BUILDVERSION) $(DOCKERNAME):$(BUILDVERSION)
+
+run-bash: volumes
+	docker run -it $(DOCKER_NETWORK_OPTS) $(DOCKER_VOLUME_OPTS) --name=$(DOCKERNAME)_$(BUILDVERSION) $(DOCKERNAME):$(BUILDVERSION) bash
 
 exec-bash:
 	docker exec -it $(DOCKERNAME)_$(BUILDVERSION) bash
