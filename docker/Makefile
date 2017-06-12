@@ -1,4 +1,7 @@
 DOCKERNAME=docker-apache-php
+LISTENPORT=8080
+
+DOCKER_NETWORK_OPTS=-p $(LISTENPORT):80
 
 .PHONY: docker
 
@@ -15,10 +18,10 @@ clean:
 	rm -f *.docker
 
 run:
-	docker run -d --name=$(DOCKERNAME)_$(BUILDVERSION) $(DOCKERNAME):$(BUILDVERSION);
+	docker run -d $(DOCKER_NETWORK_OPTS) --name=$(DOCKERNAME)_$(BUILDVERSION) $(DOCKERNAME):$(BUILDVERSION);
 
 run-bash:
-	docker run -it --name=$(DOCKERNAME)_$(BUILDVERSION) $(DOCKERNAME):$(BUILDVERSION) bash
+	docker run -it $(DOCKER_NETWORK_OPTS) --name=$(DOCKERNAME)_$(BUILDVERSION) $(DOCKERNAME):$(BUILDVERSION) bash
 
 exec-bash:
 	docker exec -it $(DOCKERNAME)_$(BUILDVERSION) bash
